@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Scanner DNI PWA</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
+  <!-- Tesseract.js for OCR -->
+  <script src="https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+  <!-- SheetJS for Excel export -->
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <!-- OpenCV.js (edge detection and warp) -->
+  <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Scanner DNI (PWA)</h1>
+    <p>Abre esta página en tu celular/tablet y permite la cámara.</p>
+  </header>
+
+  <main>
+    <section id="camera-section">
+      <div id="video-wrap">
+        <video id="video" playsinline autoplay></video>
+        <canvas id="overlay"></canvas>
+        <div id="guide">Alinea la tarjeta dentro del rectángulo</div>
+      </div>
+
+      <div class="controls">
+        <button id="captureBtn">Escanear</button>
+        <button id="autoScanBtn">Auto-scan (continuo)</button>
+        <button id="stopAutoBtn" style="display:none">Detener auto</button>
+        <button id="downloadSample">Exportar Excel</button>
+      </div>
+    </section>
+
+    <section id="preview-section">
+      <h2>Vista previa / Edición</h2>
+      <img id="capturePreview" alt="preview" />
+      <form id="dataForm">
+        <label>1. Nombre completo
+          <input type="text" id="fullName" />
+        </label>
+        <label>2. Número de DNI
+          <input type="text" id="dniNumber" />
+        </label>
+        <label>3. Sexo
+          <select id="sex">
+            <option value="">-- seleccionar --</option>
+            <option value="Hombre">Hombre</option>
+            <option value="Mujer">Mujer</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </label>
+        <label>4. Rango de edad (se calculará automáticamente)
+          <input type="text" id="ageRange" readonly />
+        </label>
+        <label>Fecha de nacimiento
+          <input type="date" id="dob" />
+        </label>
+        <label>Comunidad / Procedencia
+          <input type="text" id="community" placeholder="Nombre de la comunidad" />
+        </label>
+        <label>Número de celular
+          <input type="tel" id="phone" placeholder="+504 8XXXXXXXX" />
+        </label>
+
+        <div class="form-actions">
+          <button type="button" id="saveRow">Agregar a Excel</button>
+          <button type="button" id="clearForm">Limpiar</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="table-section">
+      <h2>Filas capturadas</h2>
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>Nombre completo</th><th>DNI</th><th>Sexo</th><th>Rango de edad</th><th>Fecha Nac.</th><th>Comunidad</th><th>Celular</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="table-actions">
+        <button id="exportExcel">Descargar Excel (.xlsx)</button>
+        <button id="clearTable">Limpiar tabla</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <small>Hecho con ❤️ — PWA scanner</small>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // register service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(() => console.log('SW registrado'))
+          .catch(err => console.warn('SW fallo', err));
+      });
+    }
+  </script>
+</body>
+</html>
